@@ -5,9 +5,13 @@ using UnityEngine.Events;
 
 public class Health : MonoBehaviour
 {
-
-    [SerializeField]
-    int health;
+    public float health;
 
     public UnityEvent OnHealthChanged;
+
+    public void Damage(float Amount)
+    {
+        health -= Amount;
+        OnHealthChanged.Invoke();
+    }
 }
