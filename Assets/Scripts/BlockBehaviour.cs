@@ -25,6 +25,9 @@ public class BlockBehaviour : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        health.Damage(collision.relativeVelocity.magnitude);
+        if (health != null)
+        {
+            health.Damage(collision.relativeVelocity.magnitude);
+        }
     }
 }
