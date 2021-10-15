@@ -7,9 +7,9 @@ public class AbilityTransform : AbilityBase
     [SerializeField]
     GameObject TransformInto;
 
-    void OnMouseDown()
+    void Update()
     {
-        if (!AbilityLocked)
+        if (!AbilityLocked && Input.GetKeyDown(KeyCode.Mouse0))
         {
             GameObject Transformed = Instantiate(TransformInto);
             Transformed.transform.position = transform.position;

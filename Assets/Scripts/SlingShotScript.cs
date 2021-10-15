@@ -13,21 +13,37 @@ public class SlingShotScript : MonoBehaviour
     [SerializeField]
     public Camera cam;
 
+    [SerializeField]
+    bool StartSlingShot = false;
 
     bool IsShot = false;
 
     float Currentcooldown = 1;
+
+    TrajectoryPreview preview;
+
+    float currentlayer;
+
+    float Layer;
+
 
     void Start()
     {
         if (cam == null)
         {
             cam = Camera.main;
-        }    
+        }
+
+        if (StartSlingShot)
+        {
+            GameManager.Instance.MainSlingshot = this;
+        }
+
+        preview = GetComponent<TrajectoryPreview>();
+        preview.enabled = false;
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnMouseDrag()
     {
         if (ballRB != null)
         {
@@ -46,21 +62,58 @@ public class SlingShotScript : MonoBehaviour
                 {
                     ballRB.position = mousePos;
                 }
+
+                if (!preview.isActiveAndEnabled)
+                {
+                    preview.enabled = true;
+                }
+                else
+                {
+                    Vector3 vel = ((transform.position - ballRB.transform.position) * 2.5f) * ballRB.mass;
+                    preview.velocity.x = vel.x;
+                    preview.velocity.y = vel.y;
+                }
+
             }
 
-            //shoots the object
-            if (Input.GetMouseButtonUp(0) && Vector3.Distance(ballRB.position, Origin.transform.position) > 0.3f)
+            
+        }
+    }
+
+    void OnMouseUp()
+    {
+        //shoots the object
+        if (ballRB != null && Input.GetMouseButtonUp(0) && Vector3.Distance(ballRB.position, Origin.transform.position) > 0.3f)
+        {
+            IsShot = true;
+            ballRB.isKinematic = false;
+            ballRB.AddRelativeTorque(new Vector3(Random.Range(0, 0), Random.Range(0, 0), Random.Range(0, 10)), ForceMode.VelocityChange);
+            ballRB.AddForce(((transform.position - ballRB.transform.position) * 1000) * ballRB.mass);
+            if (ballRB.gameObject.GetComponent<AbilityBase>())
             {
-                IsShot = true;
-                ballRB.isKinematic = false;
-                ballRB.AddRelativeTorque(new Vector3(Random.Range(0, 0), Random.Range(0, 0), Random.Range(0, 10)), ForceMode.VelocityChange);
-                ballRB.AddForce(((transform.position - ballRB.transform.position) * 1000) * ballRB.mass);
-                if (ballRB.gameObject.GetComponent<AbilityBase>())
-                {
-                    ballRB.GetComponent<AbilityBase>().AbilityLocked = false;
-                }
-                ballRB = null;
-                Currentcooldown = Time.time + 1.5f;
+                ballRB.GetComponent<AbilityBase>().AbilityLocked = false;
+            }
+            ballRB = null;
+            Currentcooldown = Time.time + 1.5f;
+
+            if (preview.isActiveAndEnabled)
+            {
+                preview.enabled = false;
+            }
+        }
+    }
+
+    public void SpawnProjectile(GameObject Prefab)
+    {
+        if (ballRB == null)
+        {
+            GameObject NewProjectile = Instantiate(Prefab);
+            if (NewProjectile.GetComponent<Rigidbody>())
+            {
+                SetProjectile(NewProjectile.GetComponent<Rigidbody>());
+            }else
+            {
+                Debug.LogError("Couldn't find RigidBody component on spawned projectile.");
             }
         }
     }
@@ -79,7 +132,7 @@ public class SlingShotScript : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.GetComponent<Rigidbody>() && ballRB == null && Currentcooldown < Time.time)
+        if (other.gameObject.GetComponent<Rigidbody>() && ballRB == null && Currentcooldown < Time.time && !StartSlingShot)
         {
             SetProjectile(other.gameObject.GetComponent<Rigidbody>());
         }    
