@@ -66,10 +66,15 @@ public class SlingShotScript : MonoBehaviour
                 if (!preview.isActiveAndEnabled)
                 {
                     preview.enabled = true;
+                    if (ballRB.GetComponent<ProjectileData>())
+                    {
+                        preview.line.startColor = ballRB.GetComponent<ProjectileData>().ProjectileColor;
+                        preview.line.endColor = ballRB.GetComponent<ProjectileData>().ProjectileColor;
+                    }
                 }
                 else
                 {
-                    Vector3 vel = ((transform.position - ballRB.transform.position) * 2.5f) * ballRB.mass;
+                    Vector3 vel = ((transform.position - ballRB.transform.position) * 15);
                     preview.velocity.x = vel.x;
                     preview.velocity.y = vel.y;
                 }
@@ -88,11 +93,12 @@ public class SlingShotScript : MonoBehaviour
             IsShot = true;
             ballRB.isKinematic = false;
             ballRB.AddRelativeTorque(new Vector3(Random.Range(0, 0), Random.Range(0, 0), Random.Range(0, 10)), ForceMode.VelocityChange);
-            ballRB.AddForce(((transform.position - ballRB.transform.position) * 1000) * ballRB.mass);
+            ballRB.AddForce(((transform.position - ballRB.transform.position) * 15), ForceMode.VelocityChange);
             if (ballRB.gameObject.GetComponent<AbilityBase>())
             {
                 ballRB.GetComponent<AbilityBase>().AbilityLocked = false;
             }
+            GameManager.Instance.cameraScript.SetTarget(ballRB.gameObject);
             ballRB = null;
             Currentcooldown = Time.time + 1.5f;
 
@@ -108,6 +114,7 @@ public class SlingShotScript : MonoBehaviour
         if (ballRB == null)
         {
             GameObject NewProjectile = Instantiate(Prefab);
+            GameManager.Instance.CurrentLevel.ShotsFired++;
             if (NewProjectile.GetComponent<Rigidbody>())
             {
                 SetProjectile(NewProjectile.GetComponent<Rigidbody>());
@@ -120,6 +127,10 @@ public class SlingShotScript : MonoBehaviour
 
     void SetProjectile (Rigidbody rb)
     {
+        if (rb.gameObject == GameManager.Instance.cameraScript.FollowTarget || 0 == 0)
+        {
+            //GameManager.Instance.cameraScript.SetTarget(gameObject);
+        }
         rb.isKinematic = true;
         rb.gameObject.transform.position = transform.position;
         ballRB = rb;

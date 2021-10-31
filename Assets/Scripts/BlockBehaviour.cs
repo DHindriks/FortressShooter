@@ -13,6 +13,7 @@ public class BlockBehaviour : MonoBehaviour
     {
         health = GetComponent<Health>();
         health.OnHealthChanged.AddListener(CheckHealth);
+        GameManager.Instance.CurrentLevel.LevelBlocks.Add(gameObject);
     }
 
     void CheckHealth()
@@ -20,6 +21,7 @@ public class BlockBehaviour : MonoBehaviour
         if (health.health <= 0)
         {
             Destroy(gameObject);
+            GameManager.Instance.CurrentLevel.CheckBlocks();
         }
     }
 
