@@ -15,8 +15,7 @@ public class CameraScript : MonoBehaviour
     Coroutine LastRoutine;
 
     Camera MainCamera;
-    [SerializeField]
-    GameObject LevelCenter; //position to have overview over the whole level, camera defaults to this.
+    public GameObject LevelCenter; //position to have overview over the whole level, camera defaults to this.
     [HideInInspector]
     public float AxisLerpamount;
     float LookLerpamount;
@@ -110,7 +109,7 @@ public class CameraScript : MonoBehaviour
         MainCamera.gameObject.transform.localPosition = pos;
     }
 
-    void ResetCam()
+    public void ResetCam()
     {
         CancelInvoke("ResetCam");
         SetcamPos();
